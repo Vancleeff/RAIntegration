@@ -44,3 +44,8 @@ With this mode, you never oveflow the selected address and values are adjusted t
 **Shift + click** on a 32-bit address will move the focus to the targetted address (if in the range of the console memory)
 \
 Example :  **Shift + click** on address **0x80123456** on Playstation will change the current address to **0x123456** which maybe will contain another pointer that you will be able to **shift + click** too and continue to quickly investigate where it goes.
+
+## History
+This feature add an history of the last 50 addresses explored on the memory viewer and let you go backward or forward in the history with **Mouse Button 4 and 5** .
+
+
