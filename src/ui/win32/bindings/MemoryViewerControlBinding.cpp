@@ -302,21 +302,30 @@ bool MemoryViewerControlBinding::HandleShortcut(UINT nChar)
 {
     const bool bShiftHeld = (GetKeyState(VK_SHIFT) < 0);
     const bool bControlHeld = (GetKeyState(VK_CONTROL) < 0);
-    auto nModifier = 1;
-
-    // Increase by 1 or 2 on the high and lower nibble depending key pressed
-    if (bControlHeld)
-        nModifier *= 2;
-    if (bShiftHeld)
-        nModifier *= 16;
 
     switch (nChar)
     {
+<<<<<<< HEAD
 >>>>>>> 12b8666 (Refactor memview plus/minus modifier following review)
+=======
+        // Increment/Decrement value Shortcuts
+>>>>>>> b6176f0 (Update ControlBinding logic + Add unit tests)
         case VK_ADD:
-            return m_pViewModel.IncreaseCurrentValue(nModifier);
         case VK_SUBTRACT:
-            return m_pViewModel.DecreaseCurrentValue(nModifier);
+        {
+            auto nModifier = 1;
+
+            // Increase/decrease by 1 or 2 on the high and lower nibble depending key pressed
+            if (bControlHeld)
+                nModifier *= 2;
+            if (bShiftHeld)
+                nModifier *= 16;
+
+            if (nChar == VK_ADD)
+                return m_pViewModel.IncreaseCurrentValue(nModifier);
+            else
+                return m_pViewModel.DecreaseCurrentValue(nModifier);
+        }
 
         default:
             return false;
