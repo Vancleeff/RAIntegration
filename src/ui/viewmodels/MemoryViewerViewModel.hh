@@ -176,6 +176,9 @@ public:
     void AdvanceCursorPage();
     void RetreatCursorPage();
 
+    bool IncreaseCurrentValue(int nModifier);
+    bool DecreaseCurrentValue(int nModifier);
+
     void SaveToMemViewHistory();
     void MoveMemViewHistoryBackward();
     void MoveMemViewHistoryForward();
