@@ -182,6 +182,7 @@ public:
     void RetreatCursorPage();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     void SaveToMemViewHistory();
     void MoveMemViewHistoryBackward();
     void MoveMemViewHistoryForward();
@@ -189,6 +190,14 @@ public:
     bool IncreaseCurrentValue(int nModifier);
     bool DecreaseCurrentValue(int nModifier);
 >>>>>>> 12b8666 (Refactor memview plus/minus modifier following review)
+=======
+    bool IncreaseCurrentValue(int nModifier);
+    bool DecreaseCurrentValue(int nModifier);
+
+    void SaveToMemViewHistory();
+    void MoveMemViewHistoryBackward();
+    void MoveMemViewHistoryForward();
+>>>>>>> f14410d72ae22fe35fbeafde84f914ad5979a28c
 
 protected:
     void OnValueChanged(const IntModelProperty::ChangeArgs& args) override;

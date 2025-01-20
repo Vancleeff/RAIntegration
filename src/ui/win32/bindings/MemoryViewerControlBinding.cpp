@@ -328,6 +328,49 @@ bool MemoryViewerControlBinding::HandleShortcut(UINT nChar)
     }
 }
 
+bool MemoryViewerControlBinding::HandleShortcut(UINT nChar)
+{
+    const bool bShiftHeld = (GetKeyState(VK_SHIFT) < 0);
+    const bool bControlHeld = (GetKeyState(VK_CONTROL) < 0);
+
+    switch (nChar)
+    {
+        // Increment/Decrement value Shortcuts
+        case VK_ADD:
+        case VK_SUBTRACT:
+        {
+            auto nModifier = 1;
+
+            // Increase/decrease by 1 or 2 on the high and lower nibble depending key pressed
+            if (bControlHeld)
+                nModifier *= 2;
+            if (bShiftHeld)
+                nModifier *= 16;
+
+            if (nChar == VK_ADD)
+                return m_pViewModel.IncreaseCurrentValue(nModifier);
+            else
+                return m_pViewModel.DecreaseCurrentValue(nModifier);
+        }
+        case 'C':
+            if (bControlHeld)
+            {
+                OnCopy();
+            }
+            return true;
+
+        case 'V':
+            if (bControlHeld and !m_pViewModel.IsReadOnly())
+            {
+                return OnPaste(bShiftHeld);
+            }
+            return true;
+
+        default:
+            return false;
+    }
+}
+
 bool MemoryViewerControlBinding::OnEditInput(UINT c)
 {
     // multiple properties may change while typing, we'll do a single Invalidate after we're done
