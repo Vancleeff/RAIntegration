@@ -242,53 +242,49 @@ bool MemoryViewerControlBinding::HandleNavigation(UINT nChar)
             return true;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        default:
+            return false;
+    }
+}
+
+bool MemoryViewerControlBinding::HandleShortcut(UINT nChar)
+{
+    const bool bShiftHeld = (GetKeyState(VK_SHIFT) < 0);
+    const bool bControlHeld = (GetKeyState(VK_CONTROL) < 0);
+
+    switch (nChar)
+    {
+        // Increment/Decrement value Shortcuts
+        case VK_ADD:
+        case VK_SUBTRACT:
+        {
+            auto nModifier = 1;
+
+            // Increase/decrease by 1 or 2 on the high and lower nibble depending key pressed
+            if (bControlHeld)
+                nModifier *= 2;
+            if (bShiftHeld)
+                nModifier *= 16;
+
+            if (nChar == VK_ADD)
+                return m_pViewModel.IncreaseCurrentValue(nModifier);
+            else
+                return m_pViewModel.DecreaseCurrentValue(nModifier);
+        }
+>>>>>>> f14410d (Add WhoPointMe feature to the branch)
         case 'C':
             if (bControlHeld)
             {
-                const auto& pEmulatorContext = ra::services::ServiceLocator::Get<ra::data::context::EmulatorContext>();
-                const auto iValue = pEmulatorContext.ReadMemory(m_pViewModel.GetAddress(), m_pViewModel.GetSize());
-                std::wstring sValue = ra::data::MemSizeFormat(iValue, m_pViewModel.GetSize(), MemFormat::Hex);
-
-                ra::services::ServiceLocator::Get<ra::services::IClipboard>().SetText(ra::Widen(sValue));
+                OnCopy();
             }
             return true;
 
         case 'V':
-            if (bControlHeld)
+            if (bControlHeld and !m_pViewModel.IsReadOnly())
             {
-                auto nAddress = m_pViewModel.GetAddress();
-                const auto& pEmulatorContext = ra::services::ServiceLocator::Get<ra::data::context::EmulatorContext>();
-                std::wstring sClipboardText = ra::services::ServiceLocator::Get<ra::services::IClipboard>().GetText();
-                auto n = m_pViewModel.GetSize();
-
-                if (sClipboardText.empty())
-                    return false;
-
-                // Check if the string is a valid hexadecimal value
-                for (wchar_t ch : sClipboardText)
-                    if (!iswxdigit(ch)) return false;
-
-                // Padding zeroes depending if shift is pressed (strict mode) or not (replace mode)
-                if (bShiftHeld)
-                {
-                    const auto nNibblesForSize = ra::data::MemSizeBytes(m_pViewModel.GetSize()) * 2;
-
-                    if (nNibblesForSize < sClipboardText.length())
-                        sClipboardText = sClipboardText.substr(sClipboardText.length() - nNibblesForSize);
-                    else
-                    {
-                        std::wstring sPadding(nNibblesForSize - sClipboardText.length(), L'0');
-                        sClipboardText = (sPadding + sClipboardText);
-                    }
-                }else 
-                    sClipboardText = sClipboardText.length() % 2 == 1 ? (L"0" + sClipboardText) : sClipboardText;
-
-                // Writing every byte separately considerably improves stability and enables long sequences to be pasted
-                for (int i = sClipboardText.length(); i != 0; i-=2)
-                {
-                    std::wstring sValue = sClipboardText.substr(i - 2, 2);
-                    pEmulatorContext.WriteMemoryByte(nAddress++, std::stoi(sValue, 0, 16));
-                }
+                return OnPaste(bShiftHeld);
             }
             return true;
 
@@ -354,6 +350,10 @@ void MemoryViewerControlBinding::OnClick(POINT point)
     m_bSuppressMemoryViewerInvalidate = true;
     if (GetKeyState(VK_SHIFT) < 0)
         m_pViewModel.OnShiftClick(point.x, point.y);
+    else if (GetKeyState(VK_CONTROL) < 0)
+    {
+        m_pViewModel.OnCtrlClick(point.x, point.y);
+    }
     else
         m_pViewModel.OnClick(point.x, point.y);
     m_bSuppressMemoryViewerInvalidate = false;
@@ -387,6 +387,66 @@ void MemoryViewerControlBinding::OnViewModelIntValueChanged(const IntModelProper
         // is paused - in which case, the update from DoFrame will not occur
         PostMessage(m_hWnd, WM_USER_INVALIDATE, 0, 0);
     }
+}
+
+void MemoryViewerControlBinding::OnCopy()
+{
+    const auto& pEmulatorContext = ra::services::ServiceLocator::Get<ra::data::context::EmulatorContext>();
+    const auto nValue = pEmulatorContext.ReadMemory(m_pViewModel.GetAddress(), m_pViewModel.GetSize());
+    std::wstring sValue = ra::data::MemSizeFormat(nValue, m_pViewModel.GetSize(), MemFormat::Hex);
+
+    ra::services::ServiceLocator::Get<ra::services::IClipboard>().SetText(ra::Widen(sValue));
+}
+
+bool MemoryViewerControlBinding::OnPaste(bool bShiftHeld)
+{
+    auto nAddress = m_pViewModel.GetAddress();
+    const auto& pEmulatorContext = ra::services::ServiceLocator::Get<ra::data::context::EmulatorContext>();
+    std::wstring sClipboardText = ra::services::ServiceLocator::Get<ra::services::IClipboard>().GetText();
+    const auto nBytesForSize = ra::data::MemSizeBytes(m_pViewModel.GetSize());
+    std::vector<std::uint32_t> vValues;
+    std::wstring sError;
+
+    if (sClipboardText.empty())
+        return false;
+
+    // Split the clipboard value into substrings matching the current size and check if they're valid hexadecimal values
+    // If the clipboard text is smaller than a single write, it will be treated as a padded value:
+    //    C => 0C, 000C, or 0000000C (depending on currently selected viewer size)
+    // If shift is held, and the clipboard string is bigger than a single write, multiple writes will occur.
+    // If the last write is not a complete chunk, it will be padded in the same way as described above:
+    //    12345678C => 12 34 56 78 0C, 1234 5678 000C, or 12345678 0000000C
+    for (size_t i = 0; i < sClipboardText.size(); i += nBytesForSize * 2)
+    {
+        std::wstring sSubString = sClipboardText.substr(i, nBytesForSize * 2);
+        unsigned int nValue;
+
+        if (!ra::ParseHex(sSubString, 0xFFFFFFFF, nValue, sError))
+        {
+            ra::ui::viewmodels::MessageBoxViewModel::ShowWarningMessage(L"Paste value failed", sError);
+            return false;
+        }
+
+        // Single mode writes only the first value,
+        if (!bShiftHeld)
+        {
+            pEmulatorContext.WriteMemory(nAddress, m_pViewModel.GetSize(), nValue);
+            return true;
+        }
+
+        vValues.push_back(nValue);
+    }
+
+    // Multi mode (shift) writes every values
+    for (auto nValue : vValues)
+    {
+        pEmulatorContext.WriteMemory(nAddress, m_pViewModel.GetSize(), nValue);
+        if (!bShiftHeld)
+            break;
+        nAddress += nBytesForSize;
+    }
+
+    return true;
 }
 
 void MemoryViewerControlBinding::Invalidate()
