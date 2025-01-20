@@ -955,12 +955,54 @@ void MemoryViewerViewModel::OnShiftClick(int nX, int nY)
             sMask.push_back(L'F');
 
     auto nMask = std::stoi(sMask, 0, 16);
-    ra::ByteAddress nAddress = (pEmulatorContext.ReadMemory(GetAddress(), GetSize())) & nMask;
+    ra::ByteAddress nAddress = (pEmulatorContext.ReadMemory(GetAddress(), GetSize()));
     const auto nConvertedAddress = pConsoleContext.ByteAddressFromRealAddress(nAddress);
     if (nConvertedAddress != 0xFFFFFFFF)
     {
         SetAddress(nConvertedAddress);
     }
+}
+
+void MemoryViewerViewModel::OnCtrlClick(int nX, int nY)
+{
+    const auto& pEmulatorContext = ra::services::ServiceLocator::Get<ra::data::context::EmulatorContext>();
+    const auto& pConsoleContext = ra::services::ServiceLocator::Get<ra::data::context::ConsoleContext>();
+    auto& vmMemoryInspector =
+        ra::services::ServiceLocator::GetMutable<ra::ui::viewmodels::WindowManager>().MemoryInspector;
+    auto& m_pSearch = vmMemoryInspector.Search();
+
+    OnClick(nX, nY);
+    auto nAddress = GetAddress();
+    auto nOAddress = ra::data::MemSizeFormat(nAddress & 0x1ffffff, MemSize::ThirtyTwoBit, MemFormat::Hex);
+    std::wstring ncleanedAddress;
+        // Check if the second digit is '1' and replace it with '9'
+    if (nOAddress.length() > 1 && nOAddress[1] == L'1')
+    {
+        nOAddress[1] = L'9';
+        size_t nonZeroPos = nOAddress.find_first_not_of(L'0');
+        ncleanedAddress = (nonZeroPos != std::wstring::npos) ? nOAddress.substr(nonZeroPos) : L"0";
+        ncleanedAddress = L"0x" + ncleanedAddress;
+    }
+    else
+    {
+        // Prepend "0x8" to the cleaned address
+        size_t nonZeroPos = nOAddress.find_first_not_of(L'0');
+        ncleanedAddress = (nonZeroPos != std::wstring::npos) ? nOAddress.substr(nonZeroPos) : L"0";
+        ncleanedAddress = L"0x8" + ncleanedAddress;
+    }
+
+    
+
+
+    m_pSearch.BeginNewSearch();
+    m_pSearch.SetSearchType(ra::services::SearchType::ThirtyTwoBitAligned);
+    m_pSearch.SetComparisonType(ComparisonType::Equals);
+
+    m_pSearch.SetFilterValue(ncleanedAddress);
+    m_pSearch.SetValueType(ra::services::SearchFilterType::Constant);
+    m_pSearch.ApplyFilter();
+
+    OutputDebugStringW(L"OnCtrlClick");
 }
 
 void MemoryViewerViewModel::OnResized(int nWidth, int nHeight)
@@ -982,7 +1024,7 @@ void MemoryViewerViewModel::OnResized(int nWidth, int nHeight)
 
 void MemoryViewerViewModel::DetermineIfASCIIShouldBeVisible()
 {
-    const bool bShowASCII = m_bWideEnoughForASCII && GetSize() == MemSize::EightBit;
+    const bool bShowASCII = true;
     if (bShowASCII != m_bShowASCII)
     {
         m_bShowASCII = bShowASCII;
