@@ -1036,7 +1036,8 @@ void MemoryViewerViewModel::OnResized(int nWidth, int nHeight)
 
 void MemoryViewerViewModel::DetermineIfASCIIShouldBeVisible()
 {
-    const bool bShowASCII = m_bWideEnoughForASCII && GetSize() == MemSize::EightBit;
+    //const bool bShowASCII = m_bWideEnoughForASCII && GetSize() == MemSize::EightBit;
+    const bool bShowASCII = true;
     if (bShowASCII != m_bShowASCII)
     {
         m_bShowASCII = bShowASCII;
