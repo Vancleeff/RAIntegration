@@ -180,6 +180,10 @@ public:
     bool IncreaseCurrentValue(uint32_t nModifier);
     bool DecreaseCurrentValue(uint32_t nModifier);
 
+    void SaveToMemViewHistory();
+    void MoveMemViewHistoryBackward();
+    void MoveMemViewHistoryForward();
+
 protected:
     void OnValueChanged(const IntModelProperty::ChangeArgs& args) override;
 
@@ -240,6 +244,8 @@ private:
     static std::unique_ptr<ra::ui::drawing::ISurface> s_pFontSurface;
     static std::unique_ptr<ra::ui::drawing::ISurface> s_pFontASCIISurface;
     static int s_nFont;
+    static std::list<ra::ByteAddress> s_listMemViewHistory;
+    static std::list<ra::ByteAddress>::iterator s_iterMemViewHistoryIndex;
 
     class MemoryBookmarkMonitor;
     friend class MemoryBookmarkMonitor;
