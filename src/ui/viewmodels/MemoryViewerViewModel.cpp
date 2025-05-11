@@ -968,6 +968,55 @@ void MemoryViewerViewModel::OnShiftClick(int nX, int nY)
     }
 }
 
+void MemoryViewerViewModel::OnCtrlClick(int nX, int nY)
+{
+    const auto& pEmulatorContext = ra::services::ServiceLocator::Get<ra::data::context::EmulatorContext>();
+    const auto& pConsoleContext = ra::services::ServiceLocator::Get<ra::data::context::ConsoleContext>();
+    auto& vmMemoryInspector =
+        ra::services::ServiceLocator::GetMutable<ra::ui::viewmodels::WindowManager>().MemoryInspector;
+    auto& m_pSearch = vmMemoryInspector.Search();
+
+    OnClick(nX, nY);
+    auto nAddress = GetAddress();
+    auto nOAddress = ra::data::MemSizeFormat(nAddress & 0x1ffffff, MemSize::ThirtyTwoBit, MemFormat::Hex);
+    std::wstring ncleanedAddress;
+
+    // Check if the second digit is '1' and replace it with '9'
+    //if (nOAddress.length() > 1 && nOAddress[1] == L'1')
+    //{
+    //    nOAddress[1] = L'9';
+    //    size_t nonZeroPos = nOAddress.find_first_not_of(L'0');
+    //    ncleanedAddress = (nonZeroPos != std::wstring::npos) ? nOAddress.substr(nonZeroPos) : L"0";
+    //    ncleanedAddress = L"0x" + ncleanedAddress;
+    //}
+ 
+    size_t nonZeroPos = nOAddress.find_first_not_of(L'0');
+    ra::services::SearchType searchType = ra::services::SearchType::ThirtyTwoBitAligned;
+    switch (pConsoleContext.Id())
+    {
+        case ConsoleID::PlayStation:
+            ncleanedAddress = L"0x8" + nOAddress.substr(1);
+            break;
+        case ConsoleID::GameCube:
+            searchType = ra::services::SearchType::ThirtyTwoBitBigEndianAligned;
+            ncleanedAddress = L"0x8" + nOAddress.substr(1);
+            break;
+        default:
+            ncleanedAddress = L"0x" + nOAddress;
+            break;
+    }
+
+    m_pSearch.BeginNewSearch();
+    m_pSearch.SetSearchType(searchType);
+    m_pSearch.SetComparisonType(ComparisonType::Equals);
+
+    m_pSearch.SetFilterValue(ncleanedAddress);
+    m_pSearch.SetValueType(ra::services::SearchFilterType::Constant);
+    m_pSearch.ApplyFilter();
+
+    OutputDebugStringW(L"OnCtrlClick");
+}
+
 void MemoryViewerViewModel::OnResized(int nWidth, int nHeight)
 {
     if (s_pFontSurface == nullptr)

@@ -253,7 +253,7 @@ bool MemoryViewerControlBinding::HandleNavigation(UINT nChar)
             return true;
 
         case 'V':
-            if (bControlHeld)
+            if (bControlHeld and !m_pViewModel.IsReadOnly())
             {
                 auto nAddress = m_pViewModel.GetAddress();
                 const auto& pEmulatorContext = ra::services::ServiceLocator::Get<ra::data::context::EmulatorContext>();
@@ -350,6 +350,10 @@ void MemoryViewerControlBinding::OnClick(POINT point)
     m_bSuppressMemoryViewerInvalidate = true;
     if (GetKeyState(VK_SHIFT) < 0)
         m_pViewModel.OnShiftClick(point.x, point.y);
+    else if (GetKeyState(VK_CONTROL) < 0)
+    {
+        m_pViewModel.OnCtrlClick(point.x, point.y);
+    }
     else
         m_pViewModel.OnClick(point.x, point.y);
     m_bSuppressMemoryViewerInvalidate = false;
