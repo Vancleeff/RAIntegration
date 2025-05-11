@@ -35,7 +35,7 @@ INT_PTR CALLBACK MemoryViewerControlBinding::WndProc(HWND hControl, UINT uMsg, W
             return FALSE;
 
         case WM_LBUTTONUP:
-            OnClick({ GET_X_LPARAM(lParam) - MEMVIEW_MARGIN, GET_Y_LPARAM(lParam) - MEMVIEW_MARGIN });
+            OnClick({GET_X_LPARAM(lParam) - MEMVIEW_MARGIN, GET_Y_LPARAM(lParam) - MEMVIEW_MARGIN});
             return FALSE;
 
         case WM_KEYDOWN:
@@ -341,7 +341,10 @@ void MemoryViewerControlBinding::OnClick(POINT point)
 
     // multiple properties may change while typing, we'll do a single Invalidate after we're done
     m_bSuppressMemoryViewerInvalidate = true;
-    m_pViewModel.OnClick(point.x, point.y);
+    if (GetKeyState(VK_SHIFT) < 0)
+        m_pViewModel.OnShiftClick(point.x, point.y);
+    else
+        m_pViewModel.OnClick(point.x, point.y);
     m_bSuppressMemoryViewerInvalidate = false;
 
     SetFocus(m_hWnd);
