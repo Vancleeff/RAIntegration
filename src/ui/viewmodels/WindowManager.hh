@@ -10,6 +10,7 @@
 #include "PointerFinderViewModel.hh"
 #include "PointerInspectorViewModel.hh"
 #include "RichPresenceMonitorViewModel.hh"
+#include "ui/viewmodels/VancleefDevToolsViewModel.hh"
 
 namespace ra {
 namespace ui {
@@ -26,6 +27,7 @@ public:
     CodeNotesViewModel CodeNotes;
     PointerFinderViewModel PointerFinder;
     PointerInspectorViewModel PointerInspector;
+    VancleefDevToolsViewModel VancleefDevTools;
 };
 
 } // namespace viewmodels

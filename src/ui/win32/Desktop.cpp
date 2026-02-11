@@ -24,6 +24,7 @@
 #include "ui/win32/ProgressDialog.hh"
 #include "ui/win32/RichPresenceDialog.hh"
 #include "ui/win32/UnknownGameDialog.hh"
+#include "ui/win32/VancleefDevToolsDialog.hh"
 
 #include "ui/win32/bindings/ControlBinding.hh"
 #include "ui/win32/bindings/MemoryViewerControlBinding.hh"
@@ -57,6 +58,7 @@ Desktop::Desktop() noexcept
     m_vDialogPresenters.emplace_back(new (std::nothrow) BrokenAchievementsDialog::Presenter);
     m_vDialogPresenters.emplace_back(new (std::nothrow) UnknownGameDialog::Presenter);
     m_vDialogPresenters.emplace_back(new (std::nothrow) ProgressDialog::Presenter);
+    m_vDialogPresenters.emplace_back(new (std::nothrow) VancleefDevToolsDialog::Presenter);
 
     ra::ui::win32::bindings::MemoryViewerControlBinding::RegisterControlClass();
 }

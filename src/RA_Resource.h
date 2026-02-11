@@ -153,6 +153,8 @@
 #define IDC_RA_LBX_REGIONS              1248
 #define IDC_RA_ADD_REGION               1249
 #define IDC_RA_REMOVE_REGION            1250
+#define IDC_CHK_VANCLEEF_ASCII_ALL      1251
+#define IDC_STATIC_VANCLEEF_TITLE       1252
 
 
 #define IDD_RA_MEMORY                   1501
@@ -170,6 +172,7 @@
 #define IDD_RA_POINTERFINDER            1514
 #define IDD_RA_POINTERINSPECTOR         1515
 #define IDD_RA_MEMORYREGIONS            1516
+#define IDD_RA_VANCLEEF_DEVTOOLS        1517
 #define IDC_RA_PASSWORD                 1535
 #define IDC_RA_SAVEPASSWORD             1536
 #define IDC_RA_USERNAME                 1549
@@ -216,15 +219,16 @@
 #define IDM_RA_FILES_OPENALL            1719
 #define IDM_RA_FILES_POINTERFINDER      1720
 #define IDM_RA_FILES_POINTERINSPECTOR   1721
+#define IDM_RA_VANCLEEF_DEVTOOLS        1722
 #define IDM_RA_MENUEND                  1739
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        122
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1251
+#define _APS_NEXT_CONTROL_VALUE         1253
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

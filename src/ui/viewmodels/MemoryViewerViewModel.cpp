@@ -1032,11 +1032,30 @@ void MemoryViewerViewModel::OnResized(int nWidth, int nHeight)
 
 void MemoryViewerViewModel::DetermineIfASCIIShouldBeVisible()
 {
-    const bool bShowASCII = m_bWideEnoughForASCII && GetSize() == ra::data::Memory::Size::EightBit;
+    bool bShowASCII;
+
+    if (m_bShowASCIIForAllSizes)
+    {
+        bShowASCII = m_bWideEnoughForASCII;
+    }
+    else
+    {
+        bShowASCII = m_bWideEnoughForASCII && GetSize() == ra::data::Memory::Size::EightBit;
+    }
+
     if (bShowASCII != m_bShowASCII)
     {
         m_bShowASCII = bShowASCII;
         ResetSurface();
+    }
+}
+
+void MemoryViewerViewModel::SetShowASCIIForAllSizes(bool value)
+{
+    if (m_bShowASCIIForAllSizes != value)
+    {
+        m_bShowASCIIForAllSizes = value;
+        DetermineIfASCIIShouldBeVisible();
     }
 }
 
