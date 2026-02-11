@@ -164,6 +164,16 @@ public:
     /// </summary>
     void SetSize(ra::data::Memory::Size value) { SetValue(SizeProperty, ra::etoi(value)); }
 
+    /// <summary>
+    /// Gets whether ASCII should be shown for all memory sizes.
+    /// </summary>
+    bool GetShowASCIIForAllSizes() const noexcept { return m_bShowASCIIForAllSizes; }
+
+    /// <summary>
+    /// Sets whether ASCII should be shown for all memory sizes.
+    /// </summary>
+    void SetShowASCIIForAllSizes(bool value);
+
     void OnClick(int nX, int nY);
     void OnResized(int nWidth, int nHeight);
     bool OnChar(char c);
@@ -208,6 +218,7 @@ protected:
     bool m_bHasFocus = false;
     bool m_bWideEnoughForASCII = false;
     bool m_bShowASCII = false;
+    bool m_bShowASCIIForAllSizes = false;
 
     static constexpr int REDRAW_MEMORY = 1;
     static constexpr int REDRAW_ADDRESSES = 2;

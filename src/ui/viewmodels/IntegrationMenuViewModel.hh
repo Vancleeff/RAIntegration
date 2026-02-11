@@ -40,6 +40,7 @@ private:
     static void ShowAllEditors();
     static void ReportBrokenAchievements();
     static void ShowGameHash();
+    static void ShowVancleefDevTools();
 };
 
 } // namespace viewmodels

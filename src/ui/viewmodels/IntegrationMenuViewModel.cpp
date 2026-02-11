@@ -87,6 +87,8 @@ void IntegrationMenuViewModel::AddCommonMenuItems(LookupItemViewModelCollection&
     vmMenu.Add(0, L"-----");
     vmMenu.Add(IDM_RA_FILES_POINTERFINDER, L"Pointer &Finder");
     vmMenu.Add(IDM_RA_FILES_POINTERINSPECTOR, L"Pointer &Inspector");
+    vmMenu.Add(0, L"-----");                                       
+    vmMenu.Add(IDM_RA_VANCLEEF_DEVTOOLS, L"&Vancleef's DevTools");
 }
 
 void IntegrationMenuViewModel::ActivateMenuItem(int nMenuItemId)
@@ -167,6 +169,10 @@ void IntegrationMenuViewModel::ActivateMenuItem(int nMenuItemId)
 
         case IDM_RA_GETROMCHECKSUM:
             ShowGameHash();
+            break;
+
+        case IDM_RA_VANCLEEF_DEVTOOLS: // ? AJOUTER CES 3 LIGNES
+            ShowVancleefDevTools();
             break;
     }
 }
@@ -438,6 +444,12 @@ void IntegrationMenuViewModel::ShowGameHash()
         ra::ui::viewmodels::GameChecksumViewModel vmGameChecksum;
         vmGameChecksum.ShowModal();
     }
+}
+
+void IntegrationMenuViewModel::ShowVancleefDevTools()
+{
+    auto& pWindowManager = ra::services::ServiceLocator::GetMutable<ra::ui::viewmodels::WindowManager>();
+    pWindowManager.VancleefDevTools.ShowModal();
 }
 
 } // namespace viewmodels
