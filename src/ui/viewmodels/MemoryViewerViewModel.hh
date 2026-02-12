@@ -163,9 +163,12 @@ public:
     /// Sets the memory word size.
     /// </summary>
     void SetSize(ra::data::Memory::Size value) { SetValue(SizeProperty, ra::etoi(value)); }
+    bool IsReadOnly() const noexcept { return m_bReadOnly; }
+    void SetReadOnly(bool value) noexcept { m_bReadOnly = value; }
 
     void OnClick(int nX, int nY);
     void OnShiftClick(int nX, int nY);
+    void OnCtrlClick(int nX, int nY);
     void OnResized(int nWidth, int nHeight);
     bool OnChar(char c);
     void OnGotFocus();

@@ -1033,7 +1033,7 @@ void MemoryViewerViewModel::OnShiftClick(int nX, int nY)
         if (ch != L'0')
             sMask.push_back(L'F');
 
-    auto nMask = std::stoi(sMask, 0, 16);
+    auto nMask = std::stoull(sMask, 0, 16);
     ra::data::ByteAddress nAddress = (pEmulatorContext.ReadMemory(GetAddress(), GetSize()));
     const auto nConvertedAddress = pConsoleContext.ByteAddressFromRealAddress(nAddress);
     if (nConvertedAddress != 0xFFFFFFFF)
@@ -1044,6 +1044,47 @@ void MemoryViewerViewModel::OnShiftClick(int nX, int nY)
     {
         SetAddress(nAddress);
     }
+}
+
+void MemoryViewerViewModel::OnCtrlClick(int nX, int nY)
+{
+    const auto& pEmulatorContext = ra::services::ServiceLocator::Get<ra::context::IEmulatorMemoryContext>();
+    const auto& pConsoleContext = ra::services::ServiceLocator::Get<ra::context::IConsoleContext>();
+    auto& vmMemoryInspector =
+        ra::services::ServiceLocator::GetMutable<ra::ui::viewmodels::WindowManager>().MemoryInspector;
+    auto& m_pSearch = vmMemoryInspector.Search();
+
+    OnClick(nX, nY);
+    auto nAddress = GetAddress();
+
+    auto nOAddress = ra::data::Memory::FormatValue(nAddress, ra::data::Memory::Size::ThirtyTwoBit, ra::data::Memory::Format::Hex);
+    std::wstring ncleanedAddress;
+
+    size_t nonZeroPos = nOAddress.find_first_not_of(L'0');
+    ra::services::SearchType searchType = ra::services::SearchType::ThirtyTwoBitAligned;
+    switch (pConsoleContext.Id())
+    {
+        case ConsoleID::PlayStation:
+            ncleanedAddress = L"0x8" + nOAddress.substr(1);
+            break;
+        case ConsoleID::GameCube:
+            searchType = ra::services::SearchType::ThirtyTwoBitBigEndianAligned;
+            ncleanedAddress = L"0x8" + nOAddress.substr(1);
+            break;
+        default:
+            ncleanedAddress = L"0x" + nOAddress;
+            break;
+    }
+
+    m_pSearch.BeginNewSearch();
+    m_pSearch.SetSearchType(searchType);
+    m_pSearch.SetComparisonType(ComparisonType::Equals);
+
+    m_pSearch.SetFilterValue(ncleanedAddress);
+    m_pSearch.SetValueType(ra::services::SearchFilterType::Constant);
+    m_pSearch.ApplyFilter();
+
+    OutputDebugStringW(L"OnCtrlClick");
 }
 
 void MemoryViewerViewModel::OnResized(int nWidth, int nHeight)
