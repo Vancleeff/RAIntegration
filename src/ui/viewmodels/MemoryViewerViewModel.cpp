@@ -3,6 +3,7 @@
 #include "RA_Defs.h"
 
 #include "context\IConsoleContext.hh"
+#include "services\IConfiguration.hh"
 
 #include "data\context\EmulatorContext.hh"
 #include "data\context\GameContext.hh"
@@ -1037,7 +1038,8 @@ void MemoryViewerViewModel::DetermineIfASCIIShouldBeVisible()
 {
     bool bShowASCII;
 
-    if (m_bShowASCIIForAllSizes)
+    const auto& pConfiguration = ra::services::ServiceLocator::Get<ra::services::IConfiguration>();
+    if (pConfiguration.IsFeatureEnabled(ra::services::Feature::VancleefAsciiAllSizes))
     {
         bShowASCII = m_bWideEnoughForASCII;
     }
@@ -1050,15 +1052,6 @@ void MemoryViewerViewModel::DetermineIfASCIIShouldBeVisible()
     {
         m_bShowASCII = bShowASCII;
         ResetSurface();
-    }
-}
-
-void MemoryViewerViewModel::SetShowASCIIForAllSizes(bool value)
-{
-    if (m_bShowASCIIForAllSizes != value)
-    {
-        m_bShowASCIIForAllSizes = value;
-        DetermineIfASCIIShouldBeVisible();
     }
 }
 

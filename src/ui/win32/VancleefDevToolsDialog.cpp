@@ -1,6 +1,7 @@
 #include "VancleefDevToolsDialog.hh"
 #include "RA_Resource.h"
 #include "ui\viewmodels\WindowManager.hh"
+#include "services\IConfiguration.hh"
 
 namespace ra {
 namespace ui {
@@ -58,10 +59,12 @@ BOOL VancleefDevToolsDialog::OnCommand(WORD nCommand)
             auto* vmVancleefDevTools = dynamic_cast<viewmodels::VancleefDevToolsViewModel*>(&m_vmWindow);
             if (vmVancleefDevTools)
             {
-                // Accès via Viewer() - c'est une méthode getter
                 auto& pWindowManager = ra::services::ServiceLocator::GetMutable<ra::ui::viewmodels::WindowManager>();
                 auto& vmMemoryInspector = pWindowManager.MemoryInspector;
-                vmMemoryInspector.Viewer().SetShowASCIIForAllSizes(vmVancleefDevTools->GetShowASCIIForAllSizes());
+                auto& pConfiguration = ra::services::ServiceLocator::GetMutable<ra::services::IConfiguration>();
+                pConfiguration.SetFeatureEnabled(ra::services::Feature::VancleefAsciiAllSizes,
+                                                 vmVancleefDevTools->GetShowASCIIForAllSizes());
+                vmVancleefDevTools->Commit();
             }
             return DialogBase::OnCommand(nCommand);
         }

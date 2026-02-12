@@ -18,6 +18,7 @@ enum class Feature
     AchievementTriggeredScreenshot,
     MasteryNotificationScreenshot,
     Offline,
+    VancleefAsciiAllSizes,
 };
 
 

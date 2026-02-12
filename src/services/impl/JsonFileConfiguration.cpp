@@ -156,6 +156,9 @@ bool JsonFileConfiguration::Load(const std::wstring& sFilename)
         }
     }
 
+    if (doc.HasMember("Vancleef ASCII All Sizes"))
+        SetFeatureEnabled(Feature::VancleefAsciiAllSizes, doc["Vancleef ASCII All Sizes"].GetBool());
+
     return true;
 }
 
@@ -219,6 +222,7 @@ void JsonFileConfiguration::Save() const
     WritePopupLocation(doc, a, "Informational Notification Display", GetPopupLocation(ra::ui::viewmodels::Popup::Message));
     doc.AddMember("Prefer Decimal", IsFeatureEnabled(Feature::PreferDecimal), a);
     doc.AddMember("Num Background Threads", m_nBackgroundThreads, a);
+    doc.AddMember("Vancleef ASCII All Sizes", IsFeatureEnabled(Feature::VancleefAsciiAllSizes), a);
 
     if (!m_sRomDirectory.empty())
         doc.AddMember("ROM Directory", ra::util::String::Narrow(m_sRomDirectory), a);

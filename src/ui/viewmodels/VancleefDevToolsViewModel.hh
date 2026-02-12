@@ -21,8 +21,10 @@ public:
 
     static const BoolModelProperty ShowASCIIForAllSizesProperty;
 
-    bool GetShowASCIIForAllSizes() const { return GetValue(ShowASCIIForAllSizesProperty); }
-    void SetShowASCIIForAllSizes(bool value) { SetValue(ShowASCIIForAllSizesProperty, value); }
+    void Initialize();
+    void Commit();
+    bool GetShowASCIIForAllSizes() const;
+    void SetShowASCIIForAllSizes(bool bValue);
 };
 
 } // namespace viewmodels

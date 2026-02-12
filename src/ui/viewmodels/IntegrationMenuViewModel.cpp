@@ -171,7 +171,7 @@ void IntegrationMenuViewModel::ActivateMenuItem(int nMenuItemId)
             ShowGameHash();
             break;
 
-        case IDM_RA_VANCLEEF_DEVTOOLS: // ? AJOUTER CES 3 LIGNES
+        case IDM_RA_VANCLEEF_DEVTOOLS:
             ShowVancleefDevTools();
             break;
     }
@@ -449,6 +449,7 @@ void IntegrationMenuViewModel::ShowGameHash()
 void IntegrationMenuViewModel::ShowVancleefDevTools()
 {
     auto& pWindowManager = ra::services::ServiceLocator::GetMutable<ra::ui::viewmodels::WindowManager>();
+    pWindowManager.VancleefDevTools.Initialize();
     pWindowManager.VancleefDevTools.ShowModal();
 }
 
