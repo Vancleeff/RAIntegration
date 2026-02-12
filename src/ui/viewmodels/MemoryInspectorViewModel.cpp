@@ -306,6 +306,7 @@ void MemoryInspectorViewModel::OnCurrentAddressChanged(ra::data::ByteAddress nNe
 
     const auto nValue = Viewer().GetValueAtAddress(nNewAddress);
     SetValue(CurrentAddressValueProperty, nValue);
+    m_pViewer.SaveToMemViewHistory();
 }
 
 std::string MemoryInspectorViewModel::GetCurrentAddressMemRefChain() const
