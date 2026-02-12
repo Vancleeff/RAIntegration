@@ -1017,6 +1017,35 @@ void MemoryViewerViewModel::OnClick(int nX, int nY)
     }
 }
 
+void MemoryViewerViewModel::OnShiftClick(int nX, int nY)
+{
+    const auto& pEmulatorContext = ra::services::ServiceLocator::Get<ra::context::IEmulatorMemoryContext>();
+    const auto& pConsoleContext = ra::services::ServiceLocator::Get<ra::context::IConsoleContext>();
+
+    OnClick(nX, nY);
+
+    // We need to create a mask based on the last address of the current console to be able to point to more complexe
+    // pointer format like on Playstation on which pointers are represented as a 24-bit pointer prefixed by 80.
+    std::wstring sMaxAddress = ra::data::Memory::FormatValue(pConsoleContext.MaxAddress(), ra::data::Memory::Size::ThirtyTwoBit, ra::data::Memory::Format::Hex);
+    std::wstring sMask;
+
+    for (wchar_t ch : sMaxAddress)
+        if (ch != L'0')
+            sMask.push_back(L'F');
+
+    auto nMask = std::stoi(sMask, 0, 16);
+    ra::data::ByteAddress nAddress = (pEmulatorContext.ReadMemory(GetAddress(), GetSize()));
+    const auto nConvertedAddress = pConsoleContext.ByteAddressFromRealAddress(nAddress);
+    if (nConvertedAddress != 0xFFFFFFFF)
+    {
+        SetAddress(nConvertedAddress);
+    }
+    else
+    {
+        SetAddress(nAddress);
+    }
+}
+
 void MemoryViewerViewModel::OnResized(int nWidth, int nHeight)
 {
     if (s_pFontSurface == nullptr)
