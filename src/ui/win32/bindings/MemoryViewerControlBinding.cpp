@@ -2,6 +2,7 @@
 
 #include "ui/EditorTheme.hh"
 #include "ui/drawing/gdi/GDISurface.hh"
+#include "services/IClipboard.hh"
 
 namespace ra {
 namespace ui {
@@ -226,6 +227,57 @@ bool MemoryViewerControlBinding::HandleNavigation(UINT nChar)
                     default:
                         m_pViewModel.SetAddress(m_pViewModel.GetAddress() | 0x0F);
                         break;
+                }
+            }
+            return true;
+
+        case 'C':
+            if (bControlHeld)
+            {
+                const auto& pMemoryContext = ra::services::ServiceLocator::Get<ra::context::IEmulatorMemoryContext>();
+                const auto iValue = pMemoryContext.ReadMemory(m_pViewModel.GetAddress(), m_pViewModel.GetSize());
+              
+                std::wstring sValue = ra::data::Memory::FormatValue(iValue, m_pViewModel.GetSize(), ra::data::Memory::Format::Hex);
+                ra::services::ServiceLocator::Get<ra::services::IClipboard>().SetText(sValue);
+            }
+            return true;
+
+        case 'V':
+            if (bControlHeld)
+            {
+                auto nAddress = m_pViewModel.GetAddress();
+                const auto& pMemoryContext = ra::services::ServiceLocator::Get<ra::context::IEmulatorMemoryContext>();
+                std::wstring sClipboardText = ra::services::ServiceLocator::Get<ra::services::IClipboard>().GetText();
+
+                if (sClipboardText.empty())
+                    return false;
+
+                // Check if the string is a valid hexadecimal value
+                for (wchar_t ch : sClipboardText)
+                    if (!iswxdigit(ch))
+                        return false;
+
+                // Padding zeroes depending if shift is pressed (strict mode) or not (replace mode)
+                if (bShiftHeld)
+                {
+                    const auto nNibblesForSize = ra::data::Memory::SizeBytes(m_pViewModel.GetSize()) * 2;
+
+                    if (nNibblesForSize < sClipboardText.length())
+                        sClipboardText = sClipboardText.substr(sClipboardText.length() - nNibblesForSize);
+                    else
+                    {
+                        std::wstring sPadding(nNibblesForSize - sClipboardText.length(), L'0');
+                        sClipboardText = (sPadding + sClipboardText);
+                    }
+                }
+                else
+                    sClipboardText = sClipboardText.length() % 2 == 1 ? (L"0" + sClipboardText) : sClipboardText;
+
+                // Writing every byte separately considerably improves stability and enables long sequences to be pasted
+                for (size_t i = sClipboardText.length(); i != 0; i -= 2)
+                {
+                    std::wstring sValue = sClipboardText.substr(i - 2, 2);
+                    pMemoryContext.WriteMemoryByte(nAddress++, gsl::narrow_cast<uint8_t>(std::stoi(sValue, nullptr, 16)));
                 }
             }
             return true;
